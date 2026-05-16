@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Auxilio Vial GB" />
+  <title>Auxilio Vial · General Belgrano</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0f1e;
+      --surface:   #111827;
+      --surface2:  #1e293b;
+      --border:    #1e3a5f;
+      --accent:    #f97316;
+      --accent2:   #ef4444;
+      --safe:      #22c55e;
+      --text:      #f1f5f9;
+      --muted:     #94a3b8;
+      --glow:      rgba(249,115,22,0.35);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Barlow', sans-serif;
+      color: var(--text);
+      min-height: 100dvh;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(30,58,95,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30,58,95,0.18) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container { position: relative; z-index: 1; }
+
+    /* ── Header stripe ── */
+    .header-stripe {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1a3a 100%);
+      border-bottom: 2px solid var(--accent);
+      box-shadow: 0 4px 32px rgba(249,115,22,0.2);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* ── Inputs ── */
+    .field {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 1.05rem;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+    }
+    .field::placeholder { color: var(--muted); }
+
+    /* ── EMERGENCY BUTTON ── */
+    .btn-emergency {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 1.55rem;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, var(--accent) 0%, #dc2626 100%);
+      border: none;
+      border-radius: 16px;
+      color: #fff;
+      width: 100%;
+      padding: 1.2rem 1rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 0 0 var(--glow);
+      transition: transform 0.12s, box-shadow 0.12s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .btn-emergency::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+      border-radius: inherit;
+    }
+    .btn-emergency:active {
+      transform: scale(0.97);
+    }
+    .btn-emergency.pulsing {
+      animation: pulse-glow 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 var(--glow); }
+      50%       { box-shadow: 0 0 0 18px rgba(249,115,22,0); }
+    }
+
+    /* ── Coords card ── */
+    .coords-card {
+      background: linear-gradient(135deg, #0d1f3c 0%, #0f1a2e 100%);
+      border: 1.5px solid #1e3a5f;
+      border-radius: 16px;
+    }
+    .coord-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      letter-spacing: 0.02em;
+      color: #38bdf8;
+    }
+    .coord-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── Status badge ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+    }
+    .badge-online  { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .badge-offline { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+    /* ── Dot blink ── */
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-online  { background: #4ade80; animation: blink 2s ease-in-out infinite; }
+    .dot-offline { background: #f87171; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Copy button ── */
+    .btn-copy {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.6rem 1.1rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-copy:active { background: #2d3748; }
+    .btn-copy.copied { border-color: var(--safe); color: var(--safe); }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 22px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 999;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s;
+      opacity: 0;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.success { border-color: #22c55e; color: #4ade80; }
+    #toast.error   { border-color: #ef4444; color: #f87171; }
+    #toast.info    { border-color: #38bdf8; color: #7dd3fc; }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Log list ── */
+    .log-item {
+      border-left: 3px solid var(--border);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .log-item.ok   { border-color: var(--safe);   color: #86efac; }
+    .log-item.warn { border-color: var(--accent);  color: #fdba74; }
+    .log-item.err  { border-color: var(--accent2); color: #fca5a5; }
+
+    /* ── Transitions ── */
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* iOS safe areas */
+    .pb-safe { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════ -->
+<header class="header-stripe px-5 pt-12 pb-5">
+  <div class="flex items-start justify-between">
+    <div>
+      <p class="text-xs font-semibold tracking-widest uppercase" style="color:var(--accent)">General Belgrano · Rural</p>
+      <h1 style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2rem;letter-spacing:0.02em;line-height:1.1">
+        AUXILIO<br>VIAL
+      </h1>
+      <p class="text-xs mt-1" style="color:var(--muted)">Asistencia en ruta · Zona rural</p>
+    </div>
+    <!-- Online badge -->
+    <div id="onlineBadge" class="badge badge-online mt-1">
+      <span class="dot dot-online"></span>
+      <span id="onlineText">En línea</span>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════════ -->
+<main class="container px-4 pt-5 pb-safe space-y-4 max-w-lg mx-auto">
+
+  <!-- ── COORDENADAS ── -->
+  <div class="coords-card p-4 fade-in">
+    <div class="flex items-center justify-between mb-3">
+      <p class="coord-label">📍 Ubicación actual</p>
+      <button id="btnCopy" class="btn-copy" onclick="copyCoords()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar
+      </button>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="text-center bg-black/30 rounded-xl py-3 px-2">
+        <p class="coord-label mb-1">Latitud</p>
+        <p id="latDisplay" class="coord-value" style="font-size:1.4rem">—</p>
+      </div>
+      <div class="text-center bg-black/30 rounded-xl py-3 px-2">
+        <p class="coord-label mb-1">Longitud</p>
+        <p id="lonDisplay" class="coord-value" style="font-size:1.4rem">—</p>
+      </div>
+    </div>
+    <div id="coordStatus" class="mt-3 text-center text-xs" style="color:var(--muted)">
+      Esperando primer solicitud…
+    </div>
+  </div>
+
+  <!-- ── DATOS PERSONALES ── -->
+  <div class="card p-5 fade-in" style="animation-delay:0.08s">
+    <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:var(--muted)">Tus datos</p>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs font-semibold mb-1.5" style="color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Nombre completo</label>
+        <input id="inputNombre"
+               class="field"
+               type="text"
+               inputmode="text"
+               autocomplete="name"
+               placeholder="Ej: Juan Pérez"
+               oninput="saveLocal()" />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold mb-1.5" style="color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">Patente del vehículo</label>
+        <input id="inputPatente"
+               class="field"
+               type="text"
+               inputmode="text"
+               autocomplete="off"
+               style="text-transform:uppercase;letter-spacing:0.12em;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.2rem"
+               placeholder="AA 123 BB"
+               oninput="this.value=this.value.toUpperCase();saveLocal()" />
+      </div>
+    </div>
+    <p class="text-xs mt-3" style="color:var(--muted)">
+      <svg style="display:inline;vertical-align:-2px" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      Guardados localmente en tu teléfono
+    </p>
+  </div>
+
+  <!-- ── BOTÓN DE EMERGENCIA ── -->
+  <div class="fade-in" style="animation-delay:0.16s">
+    <button id="btnEmergency"
+            class="btn-emergency pulsing"
+            onclick="handleEmergency()">
+      <span id="btnContent">
+        🚨 SOLICITAR GRÚA + AUTO DE RENTA
+      </span>
+    </button>
+    <p class="text-center text-xs mt-2" style="color:var(--muted)">
+      Con internet: envío automático · Sin internet: abre SMS
+    </p>
+  </div>
+
+  <!-- ── LOG DE ACTIVIDAD ── -->
+  <div class="card p-4 fade-in" style="animation-delay:0.24s">
+    <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="color:var(--muted)">Registro de actividad</p>
+    <div id="logList" class="space-y-2">
+      <div class="log-item">App iniciada. Listo para operar.</div>
+    </div>
+  </div>
+
+  <!-- ── INFO ── -->
+  <div class="card p-4 text-xs space-y-1 fade-in" style="animation-delay:0.3s;color:var(--muted)">
+    <p>⚠️ Funciona sin internet mediante SMS.</p>
+    <p>📶 Con conexión los datos se envían automáticamente.</p>
+    <p>🔒 Tu nombre y patente se guardan solo en este dispositivo.</p>
+  </div>
+
+</main>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════
+     SCRIPT
+══════════════════════════════════════════════ -->
+<script>
+  // ── CONFIG ─────────────────────────────────────
+  const WEBHOOK_URL = 'https://TU_WEBHOOK_AQUI.com/auxilio';  // ← reemplazá con tu URL
+  const SMS_NUMBER  = '+5491100000000';                        // ← reemplazá con el número destino
+  // ───────────────────────────────────────────────
+
+  let currentLat = null;
+  let currentLon = null;
+  let isBusy     = false;
+
+  // ── localStorage ───────────────────────────────
+  function saveLocal() {
+    localStorage.setItem('av_nombre',  document.getElementById('inputNombre').value.trim());
+    localStorage.setItem('av_patente', document.getElementById('inputPatente').value.trim());
+  }
+
+  function loadLocal() {
+    const n = localStorage.getItem('av_nombre');
+    const p = localStorage.getItem('av_patente');
+    if (n) document.getElementById('inputNombre').value  = n;
+    if (p) document.getElementById('inputPatente').value = p;
+    if (n || p) addLog('Datos cargados desde memoria local.', 'ok');
+  }
+
+  // ── Connectivity badge ──────────────────────────
+  function updateOnlineBadge() {
+    const badge = document.getElementById('onlineBadge');
+    const text  = document.getElementById('onlineText');
+    if (navigator.onLine) {
+      badge.className = 'badge badge-online';
+      badge.querySelector('.dot').className = 'dot dot-online';
+      text.textContent = 'En línea';
+    } else {
+      badge.className = 'badge badge-offline';
+      badge.querySelector('.dot').className = 'dot dot-offline';
+      text.textContent = 'Sin conexión';
+    }
+  }
+  window.addEventListener('online',  () => { updateOnlineBadge(); addLog('Conexión restaurada.', 'ok'); });
+  window.addEventListener('offline', () => { updateOnlineBadge(); addLog('Sin internet. Se usará SMS.', 'warn'); });
+
+  // ── Geolocalización ─────────────────────────────
+  function getLocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocalización no disponible en este dispositivo.'));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve(pos.coords),
+        err => {
+          const msgs = {
+            1: 'Permiso de ubicación denegado.',
+            2: 'No se pudo determinar la posición.',
+            3: 'Tiempo de espera agotado al obtener ubicación.',
+          };
+          reject(new Error(msgs[err.code] || 'Error de geolocalización.'));
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    });
+  }
+
+  function updateCoordDisplay(lat, lon) {
+    currentLat = lat;
+    currentLon = lon;
+    document.getElementById('latDisplay').textContent = lat.toFixed(6);
+    document.getElementById('lonDisplay').textContent = lon.toFixed(6);
+    document.getElementById('coordStatus').innerHTML =
+      `<span style="color:#4ade80">✓ Coordenadas obtenidas con alta precisión</span>`;
+  }
+
+  // ── Copy coords ─────────────────────────────────
+  function copyCoords() {
+    if (currentLat === null) { showToast('Aún no hay coordenadas.', 'error'); return; }
+    const txt = `${currentLat.toFixed(6)}, ${currentLon.toFixed(6)}`;
+    navigator.clipboard.writeText(txt).then(() => {
+      const btn = document.getElementById('btnCopy');
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copiado`;
+      showToast('Coordenadas copiadas.', 'success');
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar`;
+      }, 2500);
+    }).catch(() => {
+      showToast('No se pudo copiar. Seleccioná manualmente.', 'error');
+    });
+  }
+
+  // ── Log ─────────────────────────────────────────
+  function addLog(msg, type = '') {
+    const list = document.getElementById('logList');
+    const item = document.createElement('div');
+    item.className = `log-item ${type}`;
+    const now  = new Date();
+    const time = now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    item.textContent = `[${time}] ${msg}`;
+    list.prepend(item);
+    // Máx 10 logs
+    while (list.children.length > 10) list.removeChild(list.lastChild);
+  }
+
+  // ── Toast ────────────────────────────────────────
+  function showToast(msg, type = 'info', duration = 3200) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `show ${type}`;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = type; }, duration);
+  }
+
+  // ── Botón: estado visual ─────────────────────────
+  function setBtnLoading(loading) {
+    const btn = document.getElementById('btnEmergency');
+    const cnt = document.getElementById('btnContent');
+    if (loading) {
+      isBusy = true;
+      btn.classList.remove('pulsing');
+      btn.disabled = true;
+      cnt.innerHTML = `<span class="spinner"></span> Obteniendo ubicación…`;
+    } else {
+      isBusy = false;
+      btn.disabled = false;
+      btn.classList.add('pulsing');
+      cnt.innerHTML = `🚨 SOLICITAR GRÚA + AUTO DE RENTA`;
+    }
+  }
+
+  // ── Envío online (Fetch) ─────────────────────────
+  async function sendOnline(payload) {
+    addLog('Conexión detectada. Enviando datos al servidor…', 'warn');
+    const res = await fetch(WEBHOOK_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`Error del servidor: ${res.status}`);
+    return res;
+  }
+
+  // ── Envío offline (SMS) ──────────────────────────
+  function sendSMS(payload) {
+    const lat6 = payload.lat.toFixed(6);
+    const lon6 = payload.lon.toFixed(6);
+    const body = `SOS|${payload.nombre}|${payload.patente}|${lat6}|${lon6}|Rent:1`;
+    // Encoding que funciona en Android (sms:) y iOS (sms:&body= con +)
+    const encoded = encodeURIComponent(body);
+    const href    = `sms:${SMS_NUMBER}?body=${encoded}`;
+    addLog('Sin internet. Abriendo SMS nativo…', 'warn');
+    window.location.href = href;
+  }
+
+  // ── HANDLER PRINCIPAL ────────────────────────────
+  async function handleEmergency() {
+    if (isBusy) return;
+
+    const nombre  = document.getElementById('inputNombre').value.trim();
+    const patente = document.getElementById('inputPatente').value.trim();
+
+    if (!nombre || !patente) {
+      showToast('Completá nombre y patente primero.', 'error');
+      addLog('Falta nombre o patente.', 'err');
+      document.getElementById(nombre ? 'inputPatente' : 'inputNombre').focus();
+      return;
+    }
+
+    setBtnLoading(true);
+    document.getElementById('coordStatus').innerHTML =
+      `<span class="spinner" style="width:16px;height:16px;border-width:2px"></span> <span style="color:#7dd3fc"> Obteniendo GPS…</span>`;
+
+    try {
+      addLog('Solicitando ubicación GPS…');
+      const coords = await getLocation();
+      updateCoordDisplay(coords.latitude, coords.longitude);
+      addLog(`GPS OK: ${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`, 'ok');
+
+      const payload = {
+        nombre,
+        patente,
+        lat:      coords.latitude,
+        lon:      coords.longitude,
+        rentacar: true,
+        ts:       new Date().toISOString(),
+      };
+
+      if (navigator.onLine) {
+        try {
+          await sendOnline(payload);
+          showToast('✅ Solicitud enviada exitosamente.', 'success', 4000);
+          addLog('Solicitud enviada al servidor con éxito.', 'ok');
+        } catch (netErr) {
+          addLog(`Error al enviar online: ${netErr.message}. Usando SMS de respaldo.`, 'err');
+          showToast('Error de red. Abriendo SMS…', 'error', 3000);
+          sendSMS(payload);
+        }
+      } else {
+        sendSMS(payload);
+        showToast('📱 SMS listo. Revisá tu app de mensajes.', 'info', 4000);
+      }
+
+    } catch (geoErr) {
+      document.getElementById('coordStatus').innerHTML =
+        `<span style="color:#f87171">✗ ${geoErr.message}</span>`;
+      showToast(geoErr.message, 'error', 4500);
+      addLog(`Error de GPS: ${geoErr.message}`, 'err');
+    } finally {
+      setBtnLoading(false);
+    }
+  }
+
+  // ── INIT ─────────────────────────────────────────
+  (function init() {
+    loadLocal();
+    updateOnlineBadge();
+
+    // Pre-obtener ubicación en segundo plano
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        pos => updateCoordDisplay(pos.coords.latitude, pos.coords.longitude),
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
+      );
+    }
+
+    // PWA Service Worker básico inline
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        const CACHE = 'auxilio-vial-v1';
+        self.addEventListener('install', e =>
+          e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])))
+        );
+        self.addEventListener('fetch', e =>
+          e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/'))))
+        );
+      `;
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      const url  = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(url).catch(() => {});
+    }
+  })();
+</script>
+</body>
+</html>
